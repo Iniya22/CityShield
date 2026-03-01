@@ -1,0 +1,1908 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CityShield — Secure Urban Infrastructure Dashboard</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;700;800&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --bg: #050810;
+            --srf: #0a0f1e;
+            --cyan: #00c8ff;
+            --green: #00ff9d;
+            --amber: #ffb020;
+            --red: #ff3b6b;
+            --txt: #e8f0fe;
+            --brd: rgba(0, 200, 255, 0.12);
+            --glow: rgba(0, 200, 255, 0.4);
+            --sb-w: 240px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Space Mono', monospace;
+            background: var(--bg);
+            color: var(--txt);
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+        }
+
+        h1,
+        h2,
+        h3,
+        h4,
+        h5,
+        .syne {
+            font-family: 'Syne', sans-serif;
+        }
+
+        /* Effects */
+        body::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            z-index: -2;
+            background-image: linear-gradient(var(--brd) 1px, transparent 1px), linear-gradient(90deg, var(--brd) 1px, transparent 1px);
+            background-size: 40px 40px;
+        }
+
+        body::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            z-index: -1;
+            background: linear-gradient(to bottom, transparent 50%, rgba(0, 200, 255, 0.04) 51%, transparent 100%);
+            background-size: 100% 8px;
+            animation: scan 10s linear infinite;
+            pointer-events: none;
+        }
+
+        @keyframes scan {
+            0% {
+                background-position: 0 -100vh;
+            }
+
+            100% {
+                background-position: 0 100vh;
+            }
+        }
+
+        /* Utils */
+        .flex {
+            display: flex;
+        }
+
+        .f-col {
+            flex-direction: column;
+        }
+
+        .gap-2 {
+            gap: 8px;
+        }
+
+        .gap-4 {
+            gap: 16px;
+        }
+
+        .gap-6 {
+            gap: 24px;
+        }
+
+        .items-center {
+            align-items: center;
+        }
+
+        .j-bet {
+            justify-content: space-between;
+        }
+
+        .j-cen {
+            justify-content: center;
+        }
+
+        .grid {
+            display: grid;
+            gap: 24px;
+        }
+
+        .g-2 {
+            grid-template-columns: 1fr 1fr;
+        }
+
+        .g-3 {
+            grid-template-columns: repeat(3, 1fr);
+        }
+
+        .g-4 {
+            grid-template-columns: repeat(4, 1fr);
+        }
+
+        .t-cyan {
+            color: var(--cyan);
+        }
+
+        .t-green {
+            color: var(--green);
+        }
+
+        .t-amber {
+            color: var(--amber);
+        }
+
+        .t-red {
+            color: var(--red);
+        }
+
+        .b-cyan {
+            background: rgba(0, 200, 255, 0.1);
+            border-color: var(--cyan);
+            color: var(--cyan);
+        }
+
+        .b-green {
+            background: rgba(0, 255, 157, 0.1);
+            border-color: var(--green);
+            color: var(--green);
+        }
+
+        .b-amber {
+            background: rgba(255, 176, 32, 0.1);
+            border-color: var(--amber);
+            color: var(--amber);
+        }
+
+        .b-red {
+            background: rgba(255, 59, 107, 0.1);
+            border-color: var(--red);
+            color: var(--red);
+        }
+
+        .card {
+            background: var(--srf);
+            border: 1px solid var(--brd);
+            padding: 24px;
+            position: relative;
+            clip-path: polygon(15px 0, 100% 0, 100% calc(100% - 15px), calc(100% - 15px) 100%, 0 100%, 0 15px);
+        }
+
+        .lbl {
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: #a1a1aa;
+        }
+
+        .val {
+            font-size: 32px;
+            font-weight: 800;
+            font-family: 'Syne';
+        }
+
+        .title {
+            font-size: 24px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .btn {
+            background: transparent;
+            color: var(--txt);
+            font-family: 'Space Mono';
+            border: 1px solid var(--brd);
+            padding: 12px 24px;
+            font-size: 12px;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            transition: 0.2s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn:hover {
+            background: var(--brd);
+        }
+
+        .btn-cyan {
+            background: var(--cyan);
+            color: #000;
+            border: none;
+            font-weight: 700;
+        }
+
+        .btn-cyan:hover {
+            background: #00e0ff;
+            box-shadow: 0 0 15px var(--glow);
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 8px;
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            border: 1px solid;
+        }
+
+        .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: currentColor;
+        }
+
+        .blink {
+            animation: blink 1.5s infinite;
+        }
+
+        @keyframes blink {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.3;
+            }
+        }
+
+        .hex {
+            width: 56px;
+            height: 64px;
+            background: var(--bg);
+            border: 2px solid var(--cyan);
+            clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 20px var(--glow);
+            animation: pulse 3s infinite alternate;
+        }
+
+        .hex::after {
+            content: '🛡';
+            font-size: 28px;
+            filter: hue-rotate(180deg) brightness(200%);
+        }
+
+        @keyframes pulse {
+            from {
+                box-shadow: 0 0 10px var(--glow);
+            }
+
+            to {
+                box-shadow: 0 0 30px var(--cyan);
+            }
+        }
+
+        /* UI Sections */
+        #login {
+            position: fixed;
+            inset: 0;
+            z-index: 100;
+            background: var(--bg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .login-box {
+            width: 440px;
+            padding: 48px;
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        input,
+        select,
+        textarea {
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid var(--brd);
+            color: var(--cyan);
+            padding: 12px;
+            font-family: 'Space Mono';
+            font-size: 14px;
+            outline: none;
+            width: 100%;
+            transition: 0.2s;
+        }
+
+        input:focus,
+        select:focus,
+        textarea:focus {
+            border-color: var(--cyan);
+        }
+
+        #app {
+            display: none;
+            width: 100%;
+            height: 100%;
+        }
+
+        #sidebar {
+            width: var(--sb-w);
+            background: var(--srf);
+            border-right: 1px solid var(--brd);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sb-head {
+            padding: 24px;
+            border-bottom: 1px solid var(--brd);
+        }
+
+        .user-info {
+            padding: 24px;
+            border-bottom: 1px solid var(--brd);
+        }
+
+        .nav {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px 0;
+        }
+
+        .nav-grp {
+            padding: 8px 24px;
+            color: #555;
+            font-size: 10px;
+            font-weight: bold;
+            letter-spacing: 2px;
+        }
+
+        .nav-it {
+            padding: 12px 24px;
+            font-size: 12px;
+            cursor: pointer;
+            border-left: 3px solid transparent;
+            text-transform: uppercase;
+            color: #a1a1aa;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .nav-it:hover {
+            background: rgba(255, 255, 255, 0.02);
+            color: var(--txt);
+        }
+
+        .nav-it.active {
+            border-left-color: var(--cyan);
+            background: rgba(0, 200, 255, 0.05);
+            color: var(--cyan);
+        }
+
+        main {
+            flex: 1;
+            padding: 32px;
+            overflow-y: auto;
+            scroll-behavior: smooth;
+            position: relative;
+        }
+
+        .page {
+            display: none;
+            opacity: 0;
+            transform: translateY(10px);
+        }
+
+        .page.active {
+            display: block;
+            animation: fadeUp 0.4s forwards;
+        }
+
+        @keyframes fadeUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .pg-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 32px;
+        }
+
+        .stat-box {
+            border-top: 2px solid;
+            padding-top: 16px;
+        }
+
+        /* Progress */
+        .p-track {
+            height: 4px;
+            background: rgba(255, 255, 255, 0.1);
+            width: 100%;
+            position: relative;
+            overflow: hidden;
+            margin-top: 8px;
+        }
+
+        .p-fill {
+            height: 100%;
+            width: 0;
+            transition: 1s ease-out;
+        }
+
+        /* Tables */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            font-size: 11px;
+        }
+
+        th {
+            border-bottom: 1px solid var(--brd);
+            padding: 12px 16px;
+            color: #a1a1aa;
+            font-weight: normal;
+        }
+
+        td {
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 12px 16px;
+        }
+
+        tr:hover td {
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        /* Alerts */
+        .alert {
+            border-left: 4px solid;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.3);
+            margin-bottom: 16px;
+            display: flex;
+            gap: 20px;
+            transition: 0.3s;
+        }
+
+        .a-amber {
+            border-left-color: var(--amber);
+        }
+
+        .a-red {
+            border-left-color: var(--red);
+        }
+
+        .a-gray {
+            border-left-color: #555;
+            opacity: 0.7;
+        }
+
+        .alert-icon {
+            font-size: 28px;
+        }
+
+        /* Toggles & Dots */
+        .tg {
+            width: 44px;
+            height: 24px;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.1);
+            position: relative;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .tg::after {
+            content: '';
+            position: absolute;
+            left: 2px;
+            top: 2px;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #fff;
+            transition: 0.3s;
+        }
+
+        .tg.on {
+            background: var(--green);
+        }
+
+        .tg.on::after {
+            transform: translateX(20px);
+        }
+
+        .p-cel {
+            display: flex;
+            gap: 6px;
+        }
+
+        .p-dt {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            border: 1px solid #555;
+        }
+
+        .p-c {
+            background: var(--cyan);
+            border-color: var(--cyan);
+        }
+
+        .p-g {
+            background: var(--green);
+            border-color: var(--green);
+        }
+
+        .p-r {
+            background: var(--red);
+            border-color: var(--red);
+        }
+
+        /* Toast */
+        #toasts {
+            position: fixed;
+            bottom: 32px;
+            right: 32px;
+            z-index: 999;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .toast {
+            background: var(--srf);
+            border-left: 3px solid var(--cyan);
+            padding: 16px 24px;
+            font-size: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            animation: in 0.3s forwards, out 0.3s 2.7s forwards;
+        }
+
+        @keyframes in {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+
+            to {
+                transform: 0;
+                opacity: 1;
+            }
+        }
+
+        @keyframes out {
+            to {
+                opacity: 0;
+            }
+        }
+
+        .hidden {
+            display: none !important;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- LOGIN -->
+    <div id="login">
+        <div class="card login-box">
+            <div class="flex f-col items-center gap-2" style="margin-bottom:16px">
+                <div class="hex"></div>
+                <h2 class="title" style="margin-top:16px; letter-spacing:2px">CityShield</h2>
+                <div class="lbl t-cyan">Secure Zero-Trust Gateway</div>
+            </div>
+            <div>
+                <div class="lbl" style="margin-bottom:8px">Operator ID</div>
+                <input type="text" id="uid" value="SYS-ADMIN-01">
+            </div>
+            <div>
+                <div class="lbl" style="margin-bottom:8px">Password</div>
+                <input type="password" value="********">
+            </div>
+            <div>
+                <div class="lbl" style="margin-bottom:8px">Access Role</div>
+                <select id="urole">
+                    <option>Citizen</option>
+                    <option>Field Engineer</option>
+                    <option>Infrastructure Engineer</option>
+                    <option>Supervisor</option>
+                    <option selected>System Administrator</option>
+                </select>
+            </div>
+            <button class="btn btn-cyan" onclick="doLogin()" style="margin-top:8px">▶ AUTHENTICATE & ACCESS</button>
+            <div class="lbl" style="text-align:center; font-size:9px; color:#555">256-BIT ENCRYPTED · ZERO-TRUST
+                VERIFIED · ALL ACCESS LOGGED</div>
+        </div>
+    </div>
+
+    <!-- APP -->
+    <div id="app">
+        <aside id="sidebar">
+            <div class="sb-head flex items-center gap-4">
+                <div class="hex" style="width:36px; height:42px; border-width:1px"></div>
+                <div>
+                    <div class="syne" style="font-weight:700">CITYSHIELD</div>
+                    <div class="lbl">Command Core</div>
+                </div>
+            </div>
+            <div class="user-info">
+                <div id="p-name" style="font-size:14px; font-weight:bold; margin-bottom:4px">SYS-ADMIN-01</div>
+                <div id="p-role" class="lbl t-cyan">System Administrator</div>
+            </div>
+            <div class="nav">
+                <div class="nav-grp r-all">OVERVIEW</div>
+                <div class="nav-it active r-all" data-pg="overview">Dashboard</div>
+
+                <div class="nav-grp r-all">INFRASTRUCTURE</div>
+                <div class="nav-it r-all" data-pg="water">Water System</div>
+                <div class="nav-it r-all" data-pg="traffic">Traffic Control</div>
+                <div class="nav-it r-all" data-pg="power">Power Grid</div>
+                <div class="nav-it r-all" data-pg="iot">IoT Sensors</div>
+
+                <div class="nav-grp r-eng">SECURITY</div>
+                <div class="nav-it r-eng" data-pg="logs">Access Logs</div>
+                <div class="nav-it r-sup" data-pg="alerts">Alerts <span class="badge b-red"
+                        style="padding:2px 6px">3</span></div>
+
+                <div class="nav-grp r-sup">ADMINISTRATION</div>
+                <div class="nav-it r-sup" data-pg="admin">Admin Controls</div>
+                <div class="nav-it r-adm" data-pg="roles">Role Management</div>
+
+                <div class="nav-grp r-cit">CITIZEN</div>
+                <div class="nav-it r-cit" data-pg="requests">My Requests</div>
+            </div>
+            <div style="padding:24px; border-top:1px solid var(--brd)">
+                <button class="btn" style="width:100%; border-color:var(--red); color:var(--red)" onclick="doLogout()">◀
+                    LOGOUT</button>
+            </div>
+        </aside>
+
+        <main>
+            <!-- OVERVIEW -->
+            <section id="pg-overview" class="page active">
+                <div class="pg-header">
+                    <h2 class="title">Command Overview</h2>
+                    <div class="badge b-green">
+                        <div class="dot blink"></div> ALL SYSTEMS OPERATIONAL
+                    </div>
+                </div>
+                <div class="grid g-4" style="margin-bottom:32px">
+                    <div class="card stat-box" style="border-color:var(--cyan)">
+                        <div class="lbl">Active Sessions</div>
+                        <div class="val t-cyan" id="v-ses">1,204</div>
+                    </div>
+                    <div class="card stat-box" style="border-color:var(--green)">
+                        <div class="lbl">Requests Allowed Today</div>
+                        <div class="val t-green">98.4%</div>
+                    </div>
+                    <div class="card stat-box" style="border-color:var(--red)">
+                        <div class="lbl">Requests Blocked</div>
+                        <div class="val t-red" id="v-blk">421</div>
+                    </div>
+                    <div class="card stat-box" style="border-color:var(--amber)">
+                        <div class="lbl">Infra Systems Online</div>
+                        <div class="val t-amber">4 / 4</div>
+                    </div>
+                </div>
+                <div class="grid" style="grid-template-columns: 1fr 400px">
+                    <div>
+                        <h3 class="lbl" style="margin-bottom:16px; font-size:12px">System Health Summary</h3>
+                        <div class="grid g-2">
+                            <div class="card flex f-col gap-2">
+                                <div class="flex j-bet items-center"><span class="syne" style="font-weight:700">💧 Water
+                                        System</span> <span class="badge b-green">ONLINE</span></div>
+                                <div class="p-track">
+                                    <div class="p-fill" style="background:var(--cyan); width:78%"></div>
+                                </div>
+                            </div>
+                            <div class="card flex f-col gap-2" style="border-color:var(--amber)">
+                                <div class="flex j-bet items-center"><span class="syne t-amber"
+                                        style="font-weight:700">🚦 Traffic Control</span> <span
+                                        class="badge b-amber">DEGRADED</span></div>
+                                <div class="p-track">
+                                    <div class="p-fill" style="background:var(--amber); width:44%"></div>
+                                </div>
+                            </div>
+                            <div class="card flex f-col gap-2">
+                                <div class="flex j-bet items-center"><span class="syne" style="font-weight:700">⚡ Power
+                                        Grid</span> <span class="badge b-green">ONLINE</span></div>
+                                <div class="p-track">
+                                    <div class="p-fill" style="background:var(--green); width:92%"></div>
+                                </div>
+                            </div>
+                            <div class="card flex f-col gap-2">
+                                <div class="flex j-bet items-center"><span class="syne" style="font-weight:700">📡 IoT
+                                        Sensors</span> <span class="badge b-green">ONLINE</span></div>
+                                <div class="p-track">
+                                    <div class="p-fill" style="background:var(--green); width:61%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card flex f-col">
+                        <div class="flex j-bet items-center" style="margin-bottom:16px">
+                            <h3 class="lbl" style="font-size:12px">Live Activity Feed</h3>
+                            <button class="btn btn-cyan" style="padding:4px 8px; font-size:9px" onclick="simFeed()">+
+                                SIMULATE</button>
+                        </div>
+                        <div id="feed" class="flex f-col gap-2" style="flex:1; overflow-y:auto">
+                            <div class="flex j-bet items-center p-2"
+                                style="padding:10px; background:rgba(0,0,0,0.3); border-left:2px solid var(--green); font-size:11px">
+                                <span class="t-green">ALLOWED ▸ req_water_metrics</span><span class="lbl">NOW</span>
+                            </div>
+                            <div class="flex j-bet items-center p-2"
+                                style="padding:10px; background:rgba(0,0,0,0.3); border-left:2px solid var(--red); font-size:11px">
+                                <span class="t-red">DENIED ▸ write_power_grid</span><span class="lbl">1m</span></div>
+                            <div class="flex j-bet items-center p-2"
+                                style="padding:10px; background:rgba(0,0,0,0.3); border-left:2px solid var(--amber); font-size:11px">
+                                <span class="t-amber">WARNING ▸ rate_limit_hit</span><span class="lbl">5m</span></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- WATER -->
+            <section id="pg-water" class="page">
+                <div class="pg-header">
+                    <h2 class="title">Water System Management</h2>
+                    <div class="badge b-green">ONLINE</div>
+                </div>
+                <div class="grid g-2">
+                    <div class="card">
+                        <h3 class="syne t-cyan" style="margin-bottom:16px">WATER 1 — Northern Zone</h3>
+                        <div class="grid g-2" style="background:rgba(0,0,0,0.4); padding:16px; margin-bottom:16px">
+                            <div>
+                                <div class="lbl">Pressure</div>
+                                <div class="val" style="font-size:20px">4.2 <span class="lbl">bar</span></div>
+                            </div>
+                            <div>
+                                <div class="lbl">Flow</div>
+                                <div class="val" style="font-size:20px">1,240 <span class="lbl">L/m</span></div>
+                            </div>
+                            <div>
+                                <div class="lbl">Pump Status</div>
+                                <div class="val" style="font-size:20px">8/10</div>
+                            </div>
+                            <div>
+                                <div class="lbl">Quality</div>
+                                <div class="val t-green" style="font-size:20px">99.2%</div>
+                            </div>
+                        </div>
+                        <div class="lbl" style="margin-bottom:8px">IoT Sensors linked: W1-S01, W1-S02</div>
+                        <div class="p-track">
+                            <div class="p-fill" style="background:var(--cyan); width:78%"></div>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <h3 class="syne t-cyan" style="margin-bottom:16px">WATER 2 — Southern Zone</h3>
+                        <div class="grid g-2" style="background:rgba(0,0,0,0.4); padding:16px; margin-bottom:16px">
+                            <div>
+                                <div class="lbl">Pressure</div>
+                                <div class="val" style="font-size:20px">3.8 <span class="lbl">bar</span></div>
+                            </div>
+                            <div>
+                                <div class="lbl">Flow</div>
+                                <div class="val" style="font-size:20px">980 <span class="lbl">L/m</span></div>
+                            </div>
+                            <div>
+                                <div class="lbl">Pump Status</div>
+                                <div class="val b-amber" style="font-size:20px; border:none; padding:0">6/8</div>
+                            </div>
+                            <div>
+                                <div class="lbl">Quality</div>
+                                <div class="val t-green" style="font-size:20px">98.7%</div>
+                            </div>
+                        </div>
+                        <div class="lbl" style="margin-bottom:8px">IoT Sensors linked: W2-S01, W2-S02</div>
+                        <div class="p-track">
+                            <div class="p-fill" style="background:var(--cyan); width:64%"></div>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <h3 class="syne t-cyan" style="margin-bottom:16px">WATER 3 — Industrial Zone</h3>
+                        <div class="grid g-2" style="background:rgba(0,0,0,0.4); padding:16px; margin-bottom:16px">
+                            <div>
+                                <div class="lbl">Pressure</div>
+                                <div class="val" style="font-size:20px">5.1 <span class="lbl">bar</span></div>
+                            </div>
+                            <div>
+                                <div class="lbl">Flow</div>
+                                <div class="val" style="font-size:20px">2,100 <span class="lbl">L/m</span></div>
+                            </div>
+                            <div>
+                                <div class="lbl">Pump Status</div>
+                                <div class="val" style="font-size:20px">10/10</div>
+                            </div>
+                            <div>
+                                <div class="lbl">Quality</div>
+                                <div class="val t-green" style="font-size:20px">99.8%</div>
+                            </div>
+                        </div>
+                        <div class="lbl" style="margin-bottom:8px">IoT Sensors linked: W3-S01, W3-S02</div>
+                        <div class="p-track">
+                            <div class="p-fill" style="background:var(--cyan); width:95%"></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TRAFFIC -->
+            <section id="pg-traffic" class="page">
+                <div class="pg-header">
+                    <h2 class="title text-amber">Traffic Control System</h2>
+                    <div class="badge b-amber">DEGRADED</div>
+                </div>
+                <div class="grid g-2">
+                    <div class="card" style="border-top:2px solid var(--amber)">
+                        <h3 class="syne t-amber" style="margin-bottom:16px">TRAFFIC 1 — City Center</h3>
+                        <div class="grid g-2" style="background:rgba(0,0,0,0.4); padding:16px; margin-bottom:16px">
+                            <div>
+                                <div class="lbl">Signals Online</div>
+                                <div class="val t-red" style="font-size:20px">120/150</div>
+                            </div>
+                            <div>
+                                <div class="lbl">Avg Wait Time</div>
+                                <div class="val" style="font-size:20px">3.2 <span class="lbl">min</span></div>
+                            </div>
+                            <div>
+                                <div class="lbl">Active Incidents</div>
+                                <div class="val t-amber" style="font-size:20px">4</div>
+                            </div>
+                            <div>
+                                <div class="lbl">Override Mode</div>
+                                <div class="badge b-red">ACTIVE</div>
+                            </div>
+                        </div>
+                        <div class="lbl" style="margin-bottom:8px">IoT Sensors: T1-S01, T1-S02, T1-S03</div>
+                        <div class="p-track">
+                            <div class="p-fill" style="background:var(--amber); width:44%"></div>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <h3 class="syne" style="margin-bottom:16px">TRAFFIC 2 — Highway Corridor</h3>
+                        <div class="grid g-2" style="background:rgba(0,0,0,0.4); padding:16px; margin-bottom:16px">
+                            <div>
+                                <div class="lbl">Signals Online</div>
+                                <div class="val" style="font-size:20px">192/230</div>
+                            </div>
+                            <div>
+                                <div class="lbl">Avg Wait Time</div>
+                                <div class="val" style="font-size:20px">1.8 <span class="lbl">min</span></div>
+                            </div>
+                            <div>
+                                <div class="lbl">Active Incidents</div>
+                                <div class="val" style="font-size:20px">3</div>
+                            </div>
+                            <div>
+                                <div class="lbl">Override Mode</div>
+                                <div class="badge b-gray" style="color:#aaa; border-color:#555">STANDBY</div>
+                            </div>
+                        </div>
+                        <div class="lbl" style="margin-bottom:8px">IoT Sensors: T2-S01, T2-S02</div>
+                        <div class="p-track">
+                            <div class="p-fill" style="background:var(--amber); width:82%"></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- POWER -->
+            <section id="pg-power" class="page">
+                <div class="pg-header">
+                    <h2 class="title">Power Grid Control</h2>
+                    <div class="badge b-green">ONLINE</div>
+                </div>
+                <div class="grid g-2">
+                    <div class="card" style="border-top:2px solid var(--green)">
+                        <h3 class="syne t-green" style="margin-bottom:16px">POWER GRID 1 — Main Distribution</h3>
+                        <div class="grid g-2" style="background:rgba(0,0,0,0.4); padding:16px; margin-bottom:16px">
+                            <div>
+                                <div class="lbl">Total Load</div>
+                                <div class="val" style="font-size:20px">3.8 <span class="lbl">GW</span></div>
+                            </div>
+                            <div>
+                                <div class="lbl">Grid Stability</div>
+                                <div class="val t-green" style="font-size:20px">99.8%</div>
+                            </div>
+                            <div>
+                                <div class="lbl">Substations</div>
+                                <div class="val" style="font-size:20px">47/50</div>
+                            </div>
+                            <div>
+                                <div class="lbl">Renewable Mix</div>
+                                <div class="val t-cyan" style="font-size:20px">34%</div>
+                            </div>
+                        </div>
+                        <div class="lbl" style="margin-bottom:8px">IoT Sensors: PG1-S01, PG1-S02</div>
+                        <div class="p-track">
+                            <div class="p-fill" style="background:var(--green); width:92%"></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- IOT SENSORS -->
+            <section id="pg-iot" class="page">
+                <div class="pg-header flex f-col items-start gap-2">
+                    <h2 class="title">IoT Sensor Network</h2>
+                    <div class="lbl">All sensors grouped by parent infrastructure system</div>
+                </div>
+
+                <div class="card" style="margin-bottom:24px; padding:0; overflow:hidden">
+                    <div style="padding:16px 24px; background:rgba(0,0,0,0.3); border-bottom:1px solid var(--brd)">
+                        <h3 class="syne t-cyan">GROUP: Water System Sensors</h3>
+                    </div>
+                    <table>
+                        <tr>
+                            <th>Sensor ID</th>
+                            <th>Location</th>
+                            <th>Reading</th>
+                            <th>Status</th>
+                            <th>Last Ping</th>
+                        </tr>
+                        <tr>
+                            <td>IoT-W1-S01</td>
+                            <td>Zone: North</td>
+                            <td>Temp: 22°C</td>
+                            <td><span class="badge b-green">ACTIVE</span></td>
+                            <td class="ping">2s ago</td>
+                        </tr>
+                        <tr>
+                            <td>IoT-W1-S02</td>
+                            <td>Zone: North</td>
+                            <td>Temp: 21°C</td>
+                            <td><span class="badge b-green">ACTIVE</span></td>
+                            <td class="ping">4s ago</td>
+                        </tr>
+                        <tr>
+                            <td>IoT-W2-S01</td>
+                            <td>Zone: South</td>
+                            <td>Temp: 24°C</td>
+                            <td><span class="badge b-green">ACTIVE</span></td>
+                            <td class="ping">1s ago</td>
+                        </tr>
+                        <tr>
+                            <td>IoT-W2-S02</td>
+                            <td>Zone: South</td>
+                            <td>Temp: 23°C</td>
+                            <td><span class="badge b-amber">WARNING</span></td>
+                            <td class="ping">45s ago</td>
+                        </tr>
+                        <tr>
+                            <td>IoT-W3-S01</td>
+                            <td>Zone: Indus</td>
+                            <td>Temp: 28°C</td>
+                            <td><span class="badge b-green">ACTIVE</span></td>
+                            <td class="ping">3s ago</td>
+                        </tr>
+                        <tr>
+                            <td>IoT-W3-S02</td>
+                            <td>Zone: Indus</td>
+                            <td>Temp: 27°C</td>
+                            <td><span class="badge b-green">ACTIVE</span></td>
+                            <td class="ping">2s ago</td>
+                        </tr>
+                    </table>
+                </div>
+
+                <div class="card" style="margin-bottom:24px; padding:0; overflow:hidden">
+                    <div style="padding:16px 24px; background:rgba(0,0,0,0.3); border-bottom:1px solid var(--brd)">
+                        <h3 class="syne t-amber">GROUP: Traffic Control Sensors</h3>
+                    </div>
+                    <table>
+                        <tr>
+                            <th>Sensor ID</th>
+                            <th>Location</th>
+                            <th>Reading</th>
+                            <th>Status</th>
+                            <th>Last Ping</th>
+                        </tr>
+                        <tr>
+                            <td>IoT-T1-S01</td>
+                            <td>City-Ctr</td>
+                            <td>Signal: Strong</td>
+                            <td><span class="badge b-green">ACTIVE</span></td>
+                            <td class="ping">1s ago</td>
+                        </tr>
+                        <tr>
+                            <td>IoT-T1-S02</td>
+                            <td>City-Ctr</td>
+                            <td>Signal: Strong</td>
+                            <td><span class="badge b-green">ACTIVE</span></td>
+                            <td class="ping">1s ago</td>
+                        </tr>
+                        <tr>
+                            <td>IoT-T1-S03</td>
+                            <td>City-Ctr</td>
+                            <td>Signal: Weak</td>
+                            <td><span class="badge b-amber">WARNING</span></td>
+                            <td class="ping">12s ago</td>
+                        </tr>
+                        <tr>
+                            <td>IoT-T2-S01</td>
+                            <td>Highway</td>
+                            <td>Signal: Strong</td>
+                            <td><span class="badge b-green">ACTIVE</span></td>
+                            <td class="ping">2s ago</td>
+                        </tr>
+                        <tr>
+                            <td>IoT-T2-S02</td>
+                            <td>Highway</td>
+                            <td>Signal: Strong</td>
+                            <td><span class="badge b-green">ACTIVE</span></td>
+                            <td class="ping">3s ago</td>
+                        </tr>
+                    </table>
+                </div>
+
+                <div class="card" style="margin-bottom:24px; padding:0; overflow:hidden">
+                    <div style="padding:16px 24px; background:rgba(0,0,0,0.3); border-bottom:1px solid var(--brd)">
+                        <h3 class="syne t-green">GROUP: Power Grid Sensors</h3>
+                    </div>
+                    <table>
+                        <tr>
+                            <th>Sensor ID</th>
+                            <th>Location</th>
+                            <th>Reading</th>
+                            <th>Status</th>
+                            <th>Last Ping</th>
+                        </tr>
+                        <tr>
+                            <td>IoT-PG1-S01</td>
+                            <td>Substation: A</td>
+                            <td>Load: 87% | 41°C</td>
+                            <td><span class="badge b-green">ACTIVE</span></td>
+                            <td class="ping">1s ago</td>
+                        </tr>
+                        <tr>
+                            <td>IoT-PG1-S02</td>
+                            <td>Substation: B</td>
+                            <td>Load: 92% | 44°C</td>
+                            <td><span class="badge b-amber">WARNING</span></td>
+                            <td class="ping">8s ago</td>
+                        </tr>
+                    </table>
+                </div>
+            </section>
+
+            <!-- LOGS -->
+            <section id="pg-logs" class="page">
+                <div class="pg-header flex f-col items-start gap-2" style="position:relative">
+                    <h2 class="title">Security Access Logs</h2>
+                    <div class="lbl">Complete immutable audit trail</div>
+                </div>
+
+                <div class="flex gap-4"
+                    style="margin-bottom:24px; padding:16px; background:rgba(0,0,0,0.3); border:1px solid var(--brd)">
+                    <select>
+                        <option>Action: All</option>
+                    </select>
+                    <select>
+                        <option>Status: All</option>
+                    </select>
+                    <select>
+                        <option>Role: All</option>
+                    </select>
+                    <button class="btn btn-cyan" style="margin-left:auto">↓ EXPORT CSV</button>
+                </div>
+
+                <div class="card" style="padding:0; overflow-x:auto">
+                    <table style="min-width:1000px">
+                        <thead>
+                            <tr>
+                                <th>Timestamp</th>
+                                <th>Login ID</th>
+                                <th>Operator Name</th>
+                                <th>Role</th>
+                                <th>Action</th>
+                                <th>Resource</th>
+                                <th>Status</th>
+                                <th>IP Address</th>
+                                <th>Location</th>
+                                <th>Auth Method</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>2026-03-01 14:02</td>
+                                <td>OP-ENG-12</td>
+                                <td>A. Sharma</td>
+                                <td>Engineer</td>
+                                <td>READ</td>
+                                <td>/api/water/m</td>
+                                <td><span class="badge b-green">✓ ALLOWED</span></td>
+                                <td>192.168.1.42</td>
+                                <td>Mumbai HQ</td>
+                                <td>JWT Bearer</td>
+                            </tr>
+                            <tr>
+                                <td>2026-03-01 14:00</td>
+                                <td>CIT-9901</td>
+                                <td>B. Citizen</td>
+                                <td>Citizen</td>
+                                <td>WRITE</td>
+                                <td>/api/power</td>
+                                <td><span class="badge b-red">✗ DENIED</span></td>
+                                <td>10.0.12.1</td>
+                                <td>Chennai, Z4</td>
+                                <td>OTP+JWT</td>
+                            </tr>
+                            <tr>
+                                <td>2026-03-01 13:58</td>
+                                <td>CON-301</td>
+                                <td>C. Vendor</td>
+                                <td>Contractor</td>
+                                <td>WRITE</td>
+                                <td>/api/traffic</td>
+                                <td><span class="badge b-red">✗ DENIED</span></td>
+                                <td>172.16.0.4</td>
+                                <td>Highway D1</td>
+                                <td>API Key</td>
+                            </tr>
+                            <tr>
+                                <td>2026-03-01 13:55</td>
+                                <td>OP-SUP-01</td>
+                                <td>D. Rahman</td>
+                                <td>Supervisor</td>
+                                <td>READ</td>
+                                <td>/api/alerts</td>
+                                <td><span class="badge b-green">✓ ALLOWED</span></td>
+                                <td>192.168.1.10</td>
+                                <td>Mumbai HQ</td>
+                                <td>Biometric+JWT</td>
+                            </tr>
+                            <tr>
+                                <td>2026-03-01 13:50</td>
+                                <td>SYS-SCRIPT</td>
+                                <td>CRON_BOT</td>
+                                <td>Admin</td>
+                                <td>READ</td>
+                                <td>/api/audit</td>
+                                <td><span class="badge b-amber">⚠ RATE LIMIT</span></td>
+                                <td>127.0.0.1</td>
+                                <td>Local DC</td>
+                                <td>API Key</td>
+                            </tr>
+                            <tr>
+                                <td>2026-03-01 13:48</td>
+                                <td>OP-ENG-08</td>
+                                <td>E. Patel</td>
+                                <td>Engineer</td>
+                                <td>REFRESH</td>
+                                <td>/auth/token</td>
+                                <td><span class="badge b-cyan">↺ TOKEN REFRESH</span></td>
+                                <td>10.2.1.88</td>
+                                <td>Chennai, Z1</td>
+                                <td>JWT Bearer</td>
+                            </tr>
+                            <tr>
+                                <td>2026-03-01 13:45</td>
+                                <td>CIT-8822</td>
+                                <td>F. Citizen</td>
+                                <td>Citizen</td>
+                                <td>READ</td>
+                                <td>/api/req</td>
+                                <td><span class="badge b-green">✓ ALLOWED</span></td>
+                                <td>10.0.14.9</td>
+                                <td>Delhi, Z2</td>
+                                <td>OTP+JWT</td>
+                            </tr>
+                            <tr>
+                                <td>2026-03-01 13:40</td>
+                                <td>CON-302</td>
+                                <td>G. Vendor</td>
+                                <td>Contractor</td>
+                                <td>DELETE</td>
+                                <td>/api/water</td>
+                                <td><span class="badge b-red">✗ DENIED</span></td>
+                                <td>172.16.0.5</td>
+                                <td>Industrial Pk</td>
+                                <td>API Key</td>
+                            </tr>
+                            <tr>
+                                <td>2026-03-01 13:38</td>
+                                <td>OP-ENG-12</td>
+                                <td>A. Sharma</td>
+                                <td>Engineer</td>
+                                <td>WRITE</td>
+                                <td>/api/iot</td>
+                                <td><span class="badge b-green">✓ ALLOWED</span></td>
+                                <td>192.168.1.42</td>
+                                <td>Mumbai HQ</td>
+                                <td>JWT Bearer</td>
+                            </tr>
+                            <tr>
+                                <td>2026-03-01 13:30</td>
+                                <td>SYS-ADMIN</td>
+                                <td>H. Admin</td>
+                                <td>Admin</td>
+                                <td>WRITE</td>
+                                <td>/api/roles</td>
+                                <td><span class="badge b-green">✓ ALLOWED</span></td>
+                                <td>10.0.0.2</td>
+                                <td>Mumbai HQ</td>
+                                <td>Biometric+JWT</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- ALERTS -->
+            <section id="pg-alerts" class="page">
+                <div class="pg-header">
+                    <h2 class="title">Security Alerts</h2>
+                </div>
+
+                <div class="alert a-amber">
+                    <div class="alert-icon">⚠️</div>
+                    <div class="flex f-col gap-2" style="flex:1">
+                        <div class="flex j-bet"><span class="badge b-amber">ACTIVE</span><span class="lbl">Just
+                                Now</span></div>
+                        <p>Rate limit violation detected for user eng_malik on Water API endpoints (140 req/min).</p>
+                        <div class="lbl" style="color:var(--cyan)">IP: 192.168.4.12 | JWT: eyJhbGciOiJIUzI... </div>
+                    </div>
+                    <div class="flex f-col gap-2"><button class="btn btn-cyan"
+                            onclick="mkToast('Investigation locked')">INVESTIGATE</button><button class="btn"
+                            onclick="mkToast('Dismissed')">DISMISS</button></div>
+                </div>
+
+                <div class="alert a-red">
+                    <div class="alert-icon">🚨</div>
+                    <div class="flex f-col gap-2" style="flex:1">
+                        <div class="flex j-bet"><span class="badge b-red">CRITICAL</span><span class="lbl">1hr
+                                ago</span></div>
+                        <p>Unauthorized WRITE attempt on Power Grid sub-stations from contractor API key. Blocked.</p>
+                        <div class="lbl" style="color:var(--cyan)">IP: 172.16.0.4 | RESOURCE: /api/power/set </div>
+                    </div>
+                    <div class="flex f-col gap-2"><button class="btn btn-cyan">INVESTIGATE</button><button
+                            class="btn">DISMISS</button></div>
+                </div>
+
+                <div class="alert a-gray">
+                    <div class="alert-icon">🛑</div>
+                    <div class="flex f-col gap-2" style="flex:1">
+                        <div class="flex j-bet"><span class="badge b-gray"
+                                style="border-color:#555;color:#aaa">RESOLVED</span><span class="lbl">Yesterday</span>
+                        </div>
+                        <p>Unauthorized DELETE attempt on traffic logs. Auto-resolved by immutable WORM policy.</p>
+                        <div class="lbl" style="color:var(--cyan)">IP: 10.0.1.55 | USER: unknown </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ADMIN -->
+            <section id="pg-admin" class="page">
+                <div class="pg-header">
+                    <h2 class="title">Admin Controls</h2>
+                </div>
+
+                <div class="grid g-3" style="margin-bottom:32px">
+                    <div class="card" style="cursor:pointer" onclick="mkToast('Opened JWT Config')">
+                        <h3 class="syne t-cyan">JWT Settings</h3>
+                        <p class="lbl" style="margin-top:8px">Configure token lifetime & secrets</p>
+                    </div>
+                    <div class="card" style="cursor:pointer" onclick="mkToast('Opened Rate Config')">
+                        <h3 class="syne t-cyan">Rate Limits</h3>
+                        <p class="lbl" style="margin-top:8px">Adjust API throttling</p>
+                    </div>
+                    <div class="card" style="cursor:pointer" onclick="mkToast('Opened Webhooks')">
+                        <h3 class="syne t-cyan">Alert Routing</h3>
+                        <p class="lbl" style="margin-top:8px">Manage webhooks & SMS rules</p>
+                    </div>
+                    <div class="card" style="cursor:pointer" onclick="mkToast('Scanning sessions...')">
+                        <h3 class="syne t-cyan">Session Control</h3>
+                        <p class="lbl" style="margin-top:8px">View/terminate active JWTs</p>
+                    </div>
+                    <div class="card" style="cursor:pointer" onclick="mkToast('Generating Export...')">
+                        <h3 class="syne t-cyan">Audit Export</h3>
+                        <p class="lbl" style="margin-top:8px">Cold-storage archive generation</p>
+                    </div>
+                    <div class="card" style="cursor:pointer" onclick="mkToast('Opened Allowlist')">
+                        <h3 class="syne t-cyan">IP Allowlist</h3>
+                        <p class="lbl" style="margin-top:8px">Manage allowed subnets</p>
+                    </div>
+                </div>
+
+                <div class="card" style="padding:0">
+                    <div style="padding:20px; border-bottom:1px solid var(--brd)">
+                        <h3 class="syne">Security Switches</h3>
+                    </div>
+
+                    <div class="flex j-bet items-center" style="padding:20px; border-bottom:1px solid var(--brd)">
+                        <div>
+                            <div class="syne" style="font-weight:700">Zero-Trust Mode</div>
+                            <div class="lbl">Micro-segmentation for all internal calls</div>
+                        </div>
+                        <div class="tg on" onclick="this.classList.toggle('on')"></div>
+                    </div>
+                    <div class="flex j-bet items-center" style="padding:20px; border-bottom:1px solid var(--brd)">
+                        <div>
+                            <div class="syne" style="font-weight:700">Immutable Audit Logging</div>
+                            <div class="lbl">Write events to WORM storage</div>
+                        </div>
+                        <div class="tg on" onclick="this.classList.toggle('on')"></div>
+                    </div>
+                    <div class="flex j-bet items-center" style="padding:20px; border-bottom:1px solid var(--brd)">
+                        <div>
+                            <div class="syne" style="font-weight:700">Anomaly Detection</div>
+                            <div class="lbl">AI-driven behavioral analysis</div>
+                        </div>
+                        <div class="tg on" onclick="this.classList.toggle('on')"></div>
+                    </div>
+                    <div class="flex j-bet items-center" style="padding:20px; background:rgba(255,59,107,0.05)">
+                        <div>
+                            <div class="syne t-red" style="font-weight:700">Emergency Lockdown</div>
+                            <div class="lbl t-red">Revoke all non-admin access instantly</div>
+                        </div>
+                        <div class="tg" onclick="this.classList.toggle('on'); mkToast('EMERGENCY STATE TOGGLED', true)">
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ROLES -->
+            <section id="pg-roles" class="page">
+                <div class="pg-header">
+                    <h2 class="title">Role Management</h2><button class="btn btn-cyan"
+                        onclick="mkToast('Add Role Dialog')">+ ADD ROLE</button>
+                </div>
+                <div class="card" style="padding:0; overflow-x:auto">
+                    <table style="min-width:900px">
+                        <thead>
+                            <tr>
+                                <th>Role</th>
+                                <th>Water</th>
+                                <th>Traffic</th>
+                                <th>Power</th>
+                                <th>IoT</th>
+                                <th>Admin API</th>
+                                <th>Audit Logs</th>
+                                <th>User Mgmt</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><span class="badge b-cyan">Administrator</span></td>
+                                <td>
+                                    <div class="p-cel">
+                                        <div class="p-dt p-c"></div>
+                                        <div class="p-dt p-g"></div>
+                                        <div class="p-dt p-r"></div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="p-cel">
+                                        <div class="p-dt p-c"></div>
+                                        <div class="p-dt p-g"></div>
+                                        <div class="p-dt p-r"></div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="p-cel">
+                                        <div class="p-dt p-c"></div>
+                                        <div class="p-dt p-g"></div>
+                                        <div class="p-dt p-r"></div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="p-cel">
+                                        <div class="p-dt p-c"></div>
+                                        <div class="p-dt p-g"></div>
+                                        <div class="p-dt p-r"></div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="p-cel">
+                                        <div class="p-dt p-c"></div>
+                                        <div class="p-dt p-g"></div>
+                                        <div class="p-dt p-r"></div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="p-cel">
+                                        <div class="p-dt p-c"></div>
+                                        <div class="p-dt p-g"></div>
+                                        <div class="p-dt p-r"></div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="p-cel">
+                                        <div class="p-dt p-c"></div>
+                                        <div class="p-dt p-g"></div>
+                                        <div class="p-dt p-r"></div>
+                                    </div>
+                                </td>
+                                <td><a href="#" class="t-cyan" onclick="mkToast('Edit admin mode')">EDIT</a></td>
+                            </tr>
+                            <tr>
+                                <td><span class="badge b-amber">Supervisor</span></td>
+                                <td>
+                                    <div class="p-cel">
+                                        <div class="p-dt p-c"></div>
+                                        <div class="p-dt p-g"></div>
+                                        <div class="p-dt p-r"></div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="p-cel">
+                                        <div class="p-dt p-c"></div>
+                                        <div class="p-dt p-g"></div>
+                                        <div class="p-dt p-r"></div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="p-cel">
+                                        <div class="p-dt p-c"></div>
+                                        <div class="p-dt p-g"></div>
+                                        <div class="p-dt p-r"></div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="p-cel">
+                                        <div class="p-dt p-c"></div>
+                                        <div class="p-dt p-g"></div>
+                                        <div class="p-dt p-r"></div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="p-cel">
+                                        <div class="p-dt p-c"></div>
+                                        <div class="p-dt p-g"></div>
+                                        <div class="p-dt"></div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="p-cel">
+                                        <div class="p-dt p-c"></div>
+                                        <div class="p-dt"></div>
+                                        <div class="p-dt"></div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="p-cel">
+                                        <div class="p-dt p-c"></div>
+                                        <div class="p-dt"></div>
+                                        <div class="p-dt"></div>
+                                    </div>
+                                </td>
+                                <td><a href="#" class="t-cyan" onclick="mkToast('Edit supervisor mode')">EDIT</a></td>
+                            </tr>
+                            <tr>
+                                <td><span class="badge b-green">Engineer</span></td>
+                                <td>
+                                    <div class="p-cel">
+                                        <div class="p-dt p-c"></div>
+                                        <div class="p-dt p-g"></div>
+                                        <div class="p-dt"></div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="p-cel">
+                                        <div class="p-dt p-c"></div>
+                                        <div class="p-dt p-g"></div>
+                                        <div class="p-dt"></div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="p-cel">
+                                        <div class="p-dt p-c"></div>
+                                        <div class="p-dt p-g"></div>
+                                        <div class="p-dt"></div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="p-cel">
+                                        <div class="p-dt p-c"></div>
+                                        <div class="p-dt p-g"></div>
+                                        <div class="p-dt"></div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="p-cel">
+                                        <div class="p-dt"></div>
+                                        <div class="p-dt"></div>
+                                        <div class="p-dt"></div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="p-cel">
+                                        <div class="p-dt p-c"></div>
+                                        <div class="p-dt"></div>
+                                        <div class="p-dt"></div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="p-cel">
+                                        <div class="p-dt"></div>
+                                        <div class="p-dt"></div>
+                                        <div class="p-dt"></div>
+                                    </div>
+                                </td>
+                                <td><a href="#" class="t-cyan" onclick="mkToast('Edit engineer mode')">EDIT</a></td>
+                            </tr>
+                            <tr>
+                                <td><span class="badge b-gray">Analyst</span></td>
+                                <td>
+                                    <div class="p-cel">
+                                        <div class="p-dt p-c"></div>
+                                        <div class="p-dt"></div>
+                                        <div class="p-dt"></div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="p-cel">
+                                        <div class="p-dt p-c"></div>
+                                        <div class="p-dt"></div>
+                                        <div class="p-dt"></div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="p-cel">
+                                        <div class="p-dt p-c"></div>
+                                        <div class="p-dt"></div>
+                                        <div class="p-dt"></div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="p-cel">
+                                        <div class="p-dt p-c"></div>
+                                        <div class="p-dt"></div>
+                                        <div class="p-dt"></div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="p-cel">
+                                        <div class="p-dt"></div>
+                                        <div class="p-dt"></div>
+                                        <div class="p-dt"></div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="p-cel">
+                                        <div class="p-dt p-c"></div>
+                                        <div class="p-dt"></div>
+                                        <div class="p-dt"></div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="p-cel">
+                                        <div class="p-dt"></div>
+                                        <div class="p-dt"></div>
+                                        <div class="p-dt"></div>
+                                    </div>
+                                </td>
+                                <td><a href="#" class="t-cyan" onclick="mkToast('Edit analyst mode')">EDIT</a></td>
+                            </tr>
+                            <tr>
+                                <td><span class="badge b-gray" style="color:#fff">Citizen</span></td>
+                                <td>
+                                    <div class="p-cel">
+                                        <div class="p-dt p-c"></div>
+                                        <div class="p-dt"></div>
+                                        <div class="p-dt"></div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="p-cel">
+                                        <div class="p-dt p-c"></div>
+                                        <div class="p-dt"></div>
+                                        <div class="p-dt"></div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="p-cel">
+                                        <div class="p-dt p-c"></div>
+                                        <div class="p-dt"></div>
+                                        <div class="p-dt"></div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="p-cel">
+                                        <div class="p-dt"></div>
+                                        <div class="p-dt"></div>
+                                        <div class="p-dt"></div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="p-cel">
+                                        <div class="p-dt"></div>
+                                        <div class="p-dt"></div>
+                                        <div class="p-dt"></div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="p-cel">
+                                        <div class="p-dt"></div>
+                                        <div class="p-dt"></div>
+                                        <div class="p-dt"></div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="p-cel">
+                                        <div class="p-dt"></div>
+                                        <div class="p-dt"></div>
+                                        <div class="p-dt"></div>
+                                    </div>
+                                </td>
+                                <td><a href="#" class="t-cyan" onclick="mkToast('Edit citizen mode')">EDIT</a></td>
+                            </tr>
+                            <tr>
+                                <td><span class="badge b-gray">Contractor</span></td>
+                                <td>
+                                    <div class="p-cel">
+                                        <div class="p-dt"></div>
+                                        <div class="p-dt"></div>
+                                        <div class="p-dt"></div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="p-cel">
+                                        <div class="p-dt p-c"></div>
+                                        <div class="p-dt p-g"></div>
+                                        <div class="p-dt"></div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="p-cel">
+                                        <div class="p-dt"></div>
+                                        <div class="p-dt"></div>
+                                        <div class="p-dt"></div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="p-cel">
+                                        <div class="p-dt p-c"></div>
+                                        <div class="p-dt"></div>
+                                        <div class="p-dt"></div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="p-cel">
+                                        <div class="p-dt"></div>
+                                        <div class="p-dt"></div>
+                                        <div class="p-dt"></div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="p-cel">
+                                        <div class="p-dt"></div>
+                                        <div class="p-dt"></div>
+                                        <div class="p-dt"></div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="p-cel">
+                                        <div class="p-dt"></div>
+                                        <div class="p-dt"></div>
+                                        <div class="p-dt"></div>
+                                    </div>
+                                </td>
+                                <td><a href="#" class="t-cyan" onclick="mkToast('Edit contractor mode')">EDIT</a></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div class="lbl"
+                        style="padding:16px; border-top:1px solid var(--brd); display:flex; gap:16px; background:rgba(0,0,0,0.2)">
+                        <span><span class="p-dt p-c" style="display:inline-block"></span>=READ</span>
+                        <span><span class="p-dt p-g" style="display:inline-block"></span>=WRITE</span>
+                        <span><span class="p-dt p-r" style="display:inline-block"></span>=DELETE</span>
+                        <span>Hollow=DENIED</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- REQUESTS -->
+            <section id="pg-requests" class="page">
+                <div class="pg-header">
+                    <h2 class="title">My Requests</h2>
+                </div>
+
+                <div class="grid g-2" style="align-items:start">
+                    <div class="card flex f-col gap-4">
+                        <h3 class="syne t-cyan">Submit Service Request</h3>
+                        <div>
+                            <div class="lbl" style="margin-bottom:8px">Request Type</div><select id="r-type">
+                                <option>Water Issue</option>
+                                <option>Power Outage</option>
+                                <option>Traffic Problem</option>
+                                <option>Other</option>
+                            </select>
+                        </div>
+                        <div>
+                            <div class="lbl" style="margin-bottom:8px">Zone / Area</div><input type="text" id="r-zone"
+                                placeholder="e.g. Northern Zone">
+                        </div>
+                        <div>
+                            <div class="lbl" style="margin-bottom:8px">Description</div><textarea id="r-desc" rows="3"
+                                placeholder="Describe the issue..."></textarea>
+                        </div>
+                        <button class="btn btn-cyan" onclick="submitReq()">SUBMIT REQUEST</button>
+                    </div>
+
+                    <div class="card" style="padding:0">
+                        <div style="padding:24px; border-bottom:1px solid var(--brd)">
+                            <h3 class="syne t-cyan">History</h3>
+                        </div>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Req ID</th>
+                                    <th>Type</th>
+                                    <th>Zone</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="req-tbl">
+                                <tr>
+                                    <td>REQ-101</td>
+                                    <td>Water Issue</td>
+                                    <td>North Z1</td>
+                                    <td><span class="badge b-amber">PENDING</span></td>
+                                </tr>
+                                <tr>
+                                    <td>REQ-092</td>
+                                    <td>Traffic Problem</td>
+                                    <td>Highway</td>
+                                    <td><span class="badge b-cyan">IN PROGRESS</span></td>
+                                </tr>
+                                <tr>
+                                    <td>REQ-021</td>
+                                    <td>Power Outage</td>
+                                    <td>Indus Pk</td>
+                                    <td><span class="badge b-green">RESOLVED</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <div id="toasts"></div>
+
+    <script>
+        // Logic
+        const $ = q => document.querySelector(q);
+        const $$ = q => document.querySelectorAll(q);
+
+        function mkToast(msg, isErr = false) {
+            const t = document.createElement('div');
+            t.className = 'toast';
+            t.textContent = msg;
+            if (isErr) t.style.borderLeftColor = 'var(--red)';
+            $('#toasts').appendChild(t);
+            setTimeout(() => t.remove(), 3000);
+        }
+
+        function switchPg(pg) {
+            $$('.nav-it').forEach(el => el.classList.remove('active'));
+            $(`.nav-it[data-pg="${pg}"]`).classList.add('active');
+            $$('.page').forEach(el => el.classList.remove('active'));
+            $(`#pg-${pg}`).classList.add('active');
+
+            // Animate progress bars smoothly after display
+            setTimeout(() => {
+                $$('#pg-' + pg + ' .p-fill').forEach(f => {
+                    let w = f.style.width;
+                    f.style.width = '0%';
+                    setTimeout(() => f.style.width = w, 50);
+                });
+            }, 10);
+        }
+
+        $$('.nav-it').forEach(n => {
+            n.addEventListener('click', e => switchPg(e.currentTarget.dataset.pg));
+        });
+
+        function doLogin() {
+            const user = $('#uid').value || 'User';
+            const role = $('#urole').value;
+            $('#p-name').textContent = user;
+            $('#p-role').textContent = role;
+
+            // Base classes to hide all restricted nav items
+            $$('.nav-it, .nav-grp').forEach(el => el.classList.add('hidden'));
+
+            // Show based on roles rules
+            let toShow = ['.r-all'];
+            if (role === 'Citizen') toShow.push('.r-cit');
+            if (role === 'Field Engineer' || role === 'Infrastructure Engineer') toShow.push('.r-eng');
+            if (role === 'Supervisor') toShow.push('.r-eng', '.r-sup');
+            if (role === 'System Administrator') toShow.push('.r-eng', '.r-sup', '.r-adm');
+
+            toShow.forEach(cls => $$(`${cls}`).forEach(el => el.classList.remove('hidden')));
+
+            $('#login').style.display = 'none';
+            $('#app').style.display = 'flex';
+
+            // Default routing
+            if (role === 'Citizen') switchPg('overview');
+            else switchPg('overview');
+
+            mkToast(`🔑 JWT issued — Welcome, ${user} | Role: ${role}`);
+
+            // Initial anim
+            setTimeout(() => {
+                $$('.p-fill').forEach(f => {
+                    let w = f.style.width;
+                    f.style.width = '0%';
+                    setTimeout(() => f.style.width = w, 50);
+                });
+            }, 10);
+        }
+
+        function doLogout() {
+            $('#app').style.display = 'none';
+            $('#login').style.display = 'flex';
+            mkToast('Session terminated — JWT revoked', true);
+        }
+
+        function simFeed() {
+            const acts = [
+                '<div class="flex j-bet items-center p-2" style="padding:10px; background:rgba(0,0,0,0.3); border-left:2px solid var(--green); font-size:11px"><span class="t-green">ALLOWED ▸ req_water_metrics</span><span class="lbl">JUST NOW</span></div>',
+                '<div class="flex j-bet items-center p-2" style="padding:10px; background:rgba(0,0,0,0.3); border-left:2px solid var(--red); font-size:11px"><span class="t-red">DENIED ▸ write_power_grid</span><span class="lbl">JUST NOW</span></div>',
+                '<div class="flex j-bet items-center p-2" style="padding:10px; background:rgba(0,0,0,0.3); border-left:2px solid var(--amber); font-size:11px"><span class="t-amber">WARNING ▸ rate_limit_hit</span><span class="lbl">JUST NOW</span></div>'
+            ];
+            const item = document.createElement('div');
+            const type = Math.floor(Math.random() * acts.length);
+            item.innerHTML = acts[type];
+            const feed = $('#feed');
+            feed.insertBefore(item.firstChild, feed.firstChild);
+
+            if (type === 1) {
+                let blockVal = parseInt($('#v-blk').textContent);
+                $('#v-blk').textContent = blockVal + 1;
+            }
+        }
+
+        function submitReq() {
+            const t = $('#r-type').value;
+            const z = $('#r-zone').value || 'Unknown';
+            if (!z) return;
+            const id = 'REQ-' + Math.floor(Math.random() * 900 + 100);
+            const row = `<tr><td>${id}</td><td>${t}</td><td>${z}</td><td><span class="badge b-amber">PENDING</span></td></tr>`;
+            $('#req-tbl').insertAdjacentHTML('afterbegin', row);
+            $('#r-zone').value = ''; $('#r-desc').value = '';
+            mkToast('Request submitted successfully');
+        }
+
+        // Global Timers
+        setInterval(() => {
+            let s = parseInt($('#v-ses').textContent.replace(',', ''));
+            let diff = Math.floor(Math.random() * 11) - 5;
+            $('#v-ses').textContent = Math.max(100, s + diff).toLocaleString();
+        }, 5000);
+
+        setInterval(() => {
+            $$('.ping').forEach(el => {
+                let secs = parseInt(el.textContent);
+                if (isNaN(secs)) return;
+                el.textContent = (secs + 1) + 's ago';
+            });
+        }, 1000);
+
+    </script>
+</body>
+
+</html>
