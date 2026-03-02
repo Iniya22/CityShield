@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dashboard – CityShield</title>
+    <link rel="stylesheet" href="styles.css" />
+</head>
+
+<!-- body.dash changes layout from center-flex to block (full page) -->
+
+<body class="dash">
+
+    <!-- ── Loading overlay (shown until profile is fetched) ── -->
+    <div class="overlay" id="overlay">
+        <div class="big-spin"></div>
+        <p>Authenticating…</p>
+    </div>
+
+    <!-- ══ NAVBAR ══ -->
+    <nav class="nav" id="navbar" style="display:none;">
+        <a href="dashboard.html" class="nav-brand">
+            <div class="nav-logo">🛡️</div>
+            <span>CityShield</span>
+        </a>
+        <div class="nav-right">
+            <div class="chip">
+                <div class="avatar" id="navAvatar">?</div>
+                <span class="chip-name" id="navName">…</span>
+                <span class="badge" id="navBadge">—</span>
+            </div>
+            <button class="btn btn-danger" id="logoutBtn" style="width:auto;padding:8px 16px;">
+                Sign Out
+            </button>
+        </div>
+    </nav>
+
+    <!-- ══ MAIN CONTENT ══ -->
+    <main class="main" id="mainContent" style="display:none;">
+
+        <h1 class="page-title" id="pageTitle">Operations Dashboard</h1>
+        <p class="page-sub" id="pageSub">Loading…</p>
+
+        <!-- Role-colour banner -->
+        <div class="role-banner" id="roleBanner">
+            <span class="rbicon" id="roleIcon">🛡️</span>
+            <span id="roleDesc">Determining access level…</span>
+        </div>
+
+        <!-- ── Shared stats strip (visible to all roles) ── -->
+        <div class="stats">
+            <div class="stat p">
+                <div class="stat-icon">📡</div>
+                <div class="stat-label">Sensors Online</div>
+                <div class="stat-val">1,284</div>
+            </div>
+            <div class="stat c">
+                <div class="stat-icon">⚙️</div>
+                <div class="stat-label">Systems Active</div>
+                <div class="stat-val">98.4%</div>
+            </div>
+            <div class="stat g">
+                <div class="stat-icon">✅</div>
+                <div class="stat-label">Tasks Done Today</div>
+                <div class="stat-val">27</div>
+            </div>
+            <div class="stat o">
+                <div class="stat-icon">⚠️</div>
+                <div class="stat-label">Active Alerts</div>
+                <div class="stat-val">3</div>
+            </div>
+        </div>
+
+        <!-- ── Profile card (all roles) ── -->
+        <div class="section">
+            <div class="sec-hdr">
+                <div class="sec-icon si-slate">👤</div>
+                <div>
+                    <div class="sec-title">My Profile</div>
+                    <div class="sec-desc">Fetched from GET /auth/me using your JWT token</div>
+                </div>
+            </div>
+            <table class="ptable">
+                <tr>
+                    <td>Username</td>
+                    <td id="pUsername">—</td>
+                </tr>
+                <tr>
+                    <td>Email</td>
+                    <td id="pEmail">—</td>
+                </tr>
+                <tr>
+                    <td>Role</td>
+                    <td><span class="badge" id="pRoleBadge">—</span></td>
+                </tr>
+                <tr>
+                    <td>Auth</td>
+                    <td>JWT Bearer Token (HS256)</td>
+                </tr>
+            </table>
+        </div>
+
+        <!-- ════════════════════════════════════════════════════
+         ADMIN SECTIONS
+         Visible only when role === "admin"
+         ════════════════════════════════════════════════════ -->
+        <div id="adminSections" style="display:none;">
+
+            <!-- User Management -->
+            <div class="section admin-sec">
+                <div class="sec-hdr">
+                    <div class="sec-icon si-purple">👥</div>
+                    <div>
+                        <div class="sec-title">User Management</div>
+                        <div class="sec-desc">Administer all platform accounts</div>
+                    </div>
+                </div>
+                <table class="ptable" style="width:100%">
+                    <thead>
+                        <tr>
+                            <td><strong>Username</strong></td>
+                            <td><strong>Email</strong></td>
+                            <td><strong>Role</strong></td>
+                            <td><strong>Status</strong></td>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>admin</td>
+                            <td>admin@cityshield.com</td>
+                            <td><span class="badge b-admin">Admin</span></td>
+                            <td><span class="badge"
+                                    style="background:rgba(74,222,128,.12);color:#4ade80;border:1px solid rgba(74,222,128,.25);">Active</span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>engineer1</td>
+                            <td>engineer@cityshield.com</td>
+                            <td><span class="badge b-eng">Engineer</span></td>
+                            <td><span class="badge"
+                                    style="background:rgba(74,222,128,.12);color:#4ade80;border:1px solid rgba(74,222,128,.25);">Active</span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>viewer1</td>
+                            <td>viewer@cityshield.com</td>
+                            <td><span class="badge b-viewer">Viewer</span></td>
+                            <td><span class="badge"
+                                    style="background:rgba(74,222,128,.12);color:#4ade80;border:1px solid rgba(74,222,128,.25);">Active</span>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Task Assignment -->
+            <div class="section admin-sec">
+                <div class="sec-hdr">
+                    <div class="sec-icon si-purple">📋</div>
+                    <div>
+                        <div class="sec-title">Task Assignment</div>
+                        <div class="sec-desc">Assign infrastructure tasks to engineers</div>
+                    </div>
+                </div>
+                <div class="act-grid">
+                    <button class="act-btn ab-purple" onclick="alert('Feature: Assign new task to engineer team')">📌
+                        Assign New Task</button>
+                    <button class="act-btn ab-purple" onclick="alert('Feature: View all pending tasks')">📂 View All
+                        Tasks</button>
+                    <button class="act-btn ab-purple" onclick="alert('Feature: Set task deadlines and priorities')">⏳
+                        Set Deadlines</button>
+                    <button class="act-btn ab-purple" onclick="alert('Feature: Generate team performance report')">📊
+                        Team Report</button>
+                </div>
+            </div>
+
+            <!-- System Control -->
+            <div class="section admin-sec">
+                <div class="sec-hdr">
+                    <div class="sec-icon si-purple">⚙️</div>
+                    <div>
+                        <div class="sec-title">System Control</div>
+                        <div class="sec-desc">Full administrative control over city infrastructure</div>
+                    </div>
+                </div>
+                <div class="act-grid">
+                    <button class="act-btn ab-purple"
+                        onclick="alert('Feature: Manage user roles via POST /auth/admin/change-role')">🎭 Assign
+                        Roles</button>
+                    <button class="act-btn ab-purple" onclick="alert('Feature: View system audit logs')">🗒️ Audit
+                        Logs</button>
+                    <button class="act-btn ab-purple" onclick="alert('Feature: Configure alert thresholds')">🔔 Alert
+                        Config</button>
+                    <button class="act-btn ab-purple" onclick="alert('Feature: System-wide configuration settings')">🛠️
+                        Settings</button>
+                </div>
+            </div>
+
+        </div><!-- /adminSections -->
+
+        <!-- ════════════════════════════════════════════════════
+         ENGINEER SECTIONS
+         Visible only when role === "engineer"
+         ════════════════════════════════════════════════════ -->
+        <div id="engineerSections" style="display:none;">
+
+            <!-- My Tasks -->
+            <div class="section eng-sec">
+                <div class="sec-hdr">
+                    <div class="sec-icon si-cyan">🔧</div>
+                    <div>
+                        <div class="sec-title">My Tasks</div>
+                        <div class="sec-desc">Infrastructure tasks assigned to you</div>
+                    </div>
+                </div>
+                <ul class="task-list">
+                    <li class="task-item">
+                        <div class="task-dot td-progress"></div>
+                        <span class="task-name">Inspect Water Pump Station #7</span>
+                        <span class="task-status ts-progress">In Progress</span>
+                    </li>
+                    <li class="task-item">
+                        <div class="task-dot td-open"></div>
+                        <span class="task-name">Replace Traffic Signal – Zone 4B</span>
+                        <span class="task-status ts-open">Open</span>
+                    </li>
+                    <li class="task-item">
+                        <div class="task-dot td-open"></div>
+                        <span class="task-name">Sensor calibration – North Grid</span>
+                        <span class="task-status ts-open">Open</span>
+                    </li>
+                    <li class="task-item">
+                        <div class="task-dot td-done"></div>
+                        <span class="task-name">Monthly electrical inspection – Block C</span>
+                        <span class="task-status ts-done">Done</span>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Update Status -->
+            <div class="section eng-sec">
+                <div class="sec-hdr">
+                    <div class="sec-icon si-cyan">📝</div>
+                    <div>
+                        <div class="sec-title">Update Task Status</div>
+                        <div class="sec-desc">Report progress on your assigned tasks</div>
+                    </div>
+                </div>
+                <div class="act-grid">
+                    <button class="act-btn ab-cyan" onclick="alert('Feature: Mark task as In Progress')">▶️ Mark In
+                        Progress</button>
+                    <button class="act-btn ab-cyan" onclick="alert('Feature: Mark task as Complete')">✅ Mark
+                        Complete</button>
+                    <button class="act-btn ab-cyan" onclick="alert('Feature: Submit a field report')">📤 Submit
+                        Report</button>
+                    <button class="act-btn ab-cyan" onclick="alert('Feature: Request additional resources')">🙋 Request
+                        Resources</button>
+                </div>
+            </div>
+
+        </div><!-- /engineerSections -->
+
+        <!-- ════════════════════════════════════════════════════
+         VIEWER SECTIONS
+         Visible only when role === "viewer"
+         ════════════════════════════════════════════════════ -->
+        <div id="viewerSections" style="display:none;">
+
+            <!-- View Reports -->
+            <div class="section viewer-sec">
+                <div class="sec-hdr">
+                    <div class="sec-icon si-blue">📊</div>
+                    <div>
+                        <div class="sec-title">View Reports</div>
+                        <div class="sec-desc">Read-only access to infrastructure reports</div>
+                    </div>
+                </div>
+                <div class="act-grid">
+                    <button class="act-btn ab-blue" onclick="alert('Report: Daily Infrastructure Summary')">📄 Daily
+                        Summary</button>
+                    <button class="act-btn ab-blue" onclick="alert('Report: Monthly maintenance stats')">📅 Monthly
+                        Stats</button>
+                    <button class="act-btn ab-blue" onclick="alert('Report: Sensor health and uptime')">📡 Sensor
+                        Report</button>
+                    <button class="act-btn ab-blue" onclick="alert('Report: Historical alert log')">🗂️ Alert
+                        History</button>
+                </div>
+            </div>
+
+            <!-- View Status -->
+            <div class="section viewer-sec">
+                <div class="sec-hdr">
+                    <div class="sec-icon si-blue">👁️</div>
+                    <div>
+                        <div class="sec-title">System Status</div>
+                        <div class="sec-desc">Live read-only overview of city infrastructure</div>
+                    </div>
+                </div>
+                <ul class="task-list">
+                    <li class="task-item">
+                        <div class="task-dot td-done"></div>
+                        <span class="task-name">Power Grid – Zones A, B, C</span>
+                        <span class="task-status ts-done">Operational</span>
+                    </li>
+                    <li class="task-item">
+                        <div class="task-dot td-progress"></div>
+                        <span class="task-name">Water Distribution Network</span>
+                        <span class="task-status ts-progress">Maintenance</span>
+                    </li>
+                    <li class="task-item">
+                        <div class="task-dot td-done"></div>
+                        <span class="task-name">Traffic Signal Network</span>
+                        <span class="task-status ts-done">Operational</span>
+                    </li>
+                    <li class="task-item">
+                        <div class="task-dot td-open"></div>
+                        <span class="task-name">North Sensor Array</span>
+                        <span class="task-status ts-open">Pending Check</span>
+                    </li>
+                </ul>
+                <p style="margin-top:14px;font-size:.8rem;color:var(--muted);">
+                    🔒 You have read-only access. Contact an admin to request elevated permissions.
+                </p>
+            </div>
+
+        </div><!-- /viewerSections -->
+
+    </main><!-- /main -->
+
+    <!-- ══ JAVASCRIPT
+       How this connects to the backend:
+         1. Read JWT from localStorage (stored at login as key "token").
+         2. If missing → user is not logged in → redirect to login.html.
+         3. Call GET /auth/me with Authorization: Bearer <token>.
+         4. If 401 → token expired/invalid → clear it → redirect to login.
+         5. Parse { username, email, role } from the response.
+         6. Render the navbar chip, profile table, and role-specific sections.
+         7. Logout button clears the token and redirects to login.
+  -->
+    <script>
+        const API = 'http://127.0.0.1:8000';
+
+        // ── Step 1: Read token from localStorage ────────────
+        const token = localStorage.getItem('token');
+
+        // ── Step 2: Guard — no token means not logged in ────
+        if (!token) {
+            window.location.href = 'login.html';
+        }
+
+        // ── DOM references ───────────────────────────────────
+        const overlay = document.getElementById('overlay');
+        const navbar = document.getElementById('navbar');
+        const mainContent = document.getElementById('mainContent');
+        const logoutBtn = document.getElementById('logoutBtn');
+        const navAvatar = document.getElementById('navAvatar');
+        const navName = document.getElementById('navName');
+        const navBadge = document.getElementById('navBadge');
+        const pageTitle = document.getElementById('pageTitle');
+        const pageSub = document.getElementById('pageSub');
+        const roleBanner = document.getElementById('roleBanner');
+        const roleIcon = document.getElementById('roleIcon');
+        const roleDesc = document.getElementById('roleDesc');
+        const pUsername = document.getElementById('pUsername');
+        const pEmail = document.getElementById('pEmail');
+        const pRoleBadge = document.getElementById('pRoleBadge');
+        const adminSections = document.getElementById('adminSections');
+        const engineerSections = document.getElementById('engineerSections');
+        const viewerSections = document.getElementById('viewerSections');
+
+        // ── Apply role styling to a badge element ─────────────
+        function applyBadge(el, role) {
+            el.classList.remove('b-admin', 'b-eng', 'b-viewer');
+            const map = {
+                admin: ['b-admin', '🔴 Admin'],
+                engineer: ['b-eng', '🔵 Engineer'],
+                viewer: ['b-viewer', '⚪ Viewer'],
+            };
+            const [cls, label] = map[role] || map.viewer;
+            el.classList.add(cls);
+            el.textContent = label;
+        }
+
+        // ── Configure role banner ─────────────────────────────
+        function applyRoleBanner(role, username) {
+            const cfg = {
+                admin: { cls: 'admin', icon: '🔴', desc: `Welcome, ${username}! You have full administrative access.` },
+                engineer: { cls: 'engineer', icon: '🔵', desc: `Welcome, ${username}! Your tasks and tools are ready.` },
+                viewer: { cls: 'viewer', icon: '⚪', desc: `Welcome, ${username}. You have read-only access to reports and statuses.` },
+            };
+            const c = cfg[role] || cfg.viewer;
+            roleBanner.className = 'role-banner ' + c.cls;
+            roleIcon.textContent = c.icon;
+            roleDesc.textContent = c.desc;
+        }
+
+        // ── Show correct sections based on role ───────────────
+        function showSections(role, username) {
+            // Page title changes per role
+            const titles = {
+                admin: 'Admin Dashboard',
+                engineer: 'Engineer Dashboard',
+                viewer: 'Viewer Dashboard',
+            };
+            pageTitle.textContent = titles[role] || 'Dashboard';
+
+            // Show one set of sections, hide the others
+            if (role === 'admin') {
+                adminSections.style.display = 'block';
+                pageSub.textContent = `Full system access — ${new Date().toLocaleDateString('en-GB', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}`;
+            } else if (role === 'engineer') {
+                engineerSections.style.display = 'block';
+                pageSub.textContent = 'Your assigned tasks and tools.';
+            } else {
+                viewerSections.style.display = 'block';
+                pageSub.textContent = 'Read-only access to city infrastructure data.';
+            }
+        }
+
+        // ── Logout handler ────────────────────────────────────
+        logoutBtn.addEventListener('click', function () {
+            localStorage.removeItem('token');  // clear the JWT
+            window.location.href = 'login.html';
+        });
+
+        // ── Main: fetch profile and render dashboard ──────────
+        async function loadDashboard() {
+            try {
+                // ── Step 3: Call GET /auth/me with Bearer token ──
+                // The Authorization header is how the backend knows who we are.
+                const res = await fetch(API + '/auth/me', {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': 'Bearer ' + token,   // ← JWT sent here
+                        'Content-Type': 'application/json',
+                    }
+                });
+
+                // ── Step 4: Handle expired / invalid token ───────
+                if (res.status === 401 || res.status === 403) {
+                    localStorage.removeItem('token');
+                    window.location.href = 'login.html';
+                    return;
+                }
+
+                if (!res.ok) {
+                    alert('Failed to load profile. Redirecting to login.');
+                    localStorage.removeItem('token');
+                    window.location.href = 'login.html';
+                    return;
+                }
+
+                // ── Step 5: Parse user data ───────────────────────
+                // Response shape: { username, email, role }
+                const user = await res.json();
+                const username = user.username || 'User';
+                const email = user.email || '—';
+                const role = user.role || 'viewer';
+
+                // ── Step 6: Render navbar chip ────────────────────
+                navAvatar.textContent = username.charAt(0).toUpperCase();
+                navName.textContent = username;
+                applyBadge(navBadge, role);
+
+                // ── Render profile table ──────────────────────────
+                pUsername.textContent = username;
+                pEmail.textContent = email;
+                applyBadge(pRoleBadge, role);
+
+                // ── Render role banner + sections ─────────────────
+                applyRoleBanner(role, username);
+                showSections(role, username);
+
+                // ── Reveal page ───────────────────────────────────
+                overlay.style.display = 'none';
+                navbar.style.display = '';
+                mainContent.style.display = '';
+
+            } catch (err) {
+                alert('❌ Cannot reach server at ' + API + '\nIs the backend running?');
+                console.error('Dashboard error:', err);
+                localStorage.removeItem('token');
+                window.location.href = 'login.html';
+            }
+        }
+
+        // Run immediately when page opens
+        loadDashboard();
+    </script>
+
+</body>
+
+</html>

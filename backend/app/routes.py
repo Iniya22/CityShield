@@ -58,15 +58,16 @@ def register(user: UserRegister):
     # Step 2: Hash the password before storing it
     hashed_pw = hash_password(user.password)
 
-    # Step 3: Store the user record
+    # Step 3: Store the user record (including their chosen role)
     fake_users_db[user.username] = {
         "username": user.username,
         "email": user.email,
         "hashed_password": hashed_pw,   # ← hashed, never plain-text
+        "role": user.role,              # ← store role (default: "viewer")
     }
 
-    # Step 4: Return public user data (password is excluded by UserOut)
-    return UserOut(username=user.username, email=user.email)
+    # Step 4: Return public user data (password excluded by UserOut)
+    return UserOut(username=user.username, email=user.email, role=user.role)
 
 
 # ── 2. LOGIN ────────────────────────────────────────────────
@@ -112,12 +113,12 @@ def login(credentials: UserLogin):
     # "sub" (subject) is the standard JWT claim for the user identifier.
     token_expiry = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = create_access_token(
-    data={
-    "sub": user["username"],
-    "role": user.get("role", "admin")
-    },
-     expires_delta=token_expiry,
-)
+        data={
+            "sub":  user["username"],
+            "role": user.get("role", "viewer"),  # embed role in JWT payload
+        },
+        expires_delta=token_expiry,
+    )
 
     # Step 4: Return the token
     return Token(access_token=access_token, token_type="bearer")
@@ -147,9 +148,11 @@ def read_current_user(
     you will receive HTTP 401 Unauthorized.
     """
     # current_user is the dict we stored in fake_users_db
+    # role comes from the JWT payload (via get_current_user in auth.py)
     return UserOut(
         username=current_user["username"],
         email=current_user["email"],
+        role=current_user.get("role", "viewer"),  # ← role now returned
     )
 
 @router.post("/admin/change-role")

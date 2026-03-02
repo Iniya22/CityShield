@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Register – CityShield</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+
+<body>
+  <div class="auth-wrap">
+
+    <!-- Brand -->
+    <div class="brand">
+      <div class="brand-icon">🛡️</div>
+      <h1>CityShield</h1>
+      <p>Secure City Infrastructure Platform</p>
+    </div>
+
+    <div class="card">
+      <h2>Create Account</h2>
+      <p class="sub">Register your credentials to access the platform.</p>
+
+      <!-- ── Demo hint ── -->
+      <div class="demo-box">
+        <span class="demo-title">💡 Demo — Pre-seeded accounts (no registration needed)</span>
+        <div class="demo-row">
+          <span>admin / <span class="demo-cred">Admin@123</span></span>
+          <span class="demo-role dr-admin">Admin</span>
+        </div>
+        <div class="demo-row">
+          <span>engineer1 / <span class="demo-cred">Engineer@123</span></span>
+          <span class="demo-role dr-eng">Engineer</span>
+        </div>
+        <div class="demo-row">
+          <span>viewer1 / <span class="demo-cred">Viewer@123</span></span>
+          <span class="demo-role dr-viewer">Viewer</span>
+        </div>
+        <div style="margin-top:8px;font-size:.75rem;color:var(--muted);">
+          Or create a new account below and choose a role.
+        </div>
+      </div>
+
+      <!-- ══ REGISTRATION FORM ══
+           ID attributes are required for the JS below to work.
+           Backend endpoint: POST /auth/register
+           Payload: { username, email, password, role }
+      -->
+      <form id="registerForm" novalidate>
+
+        <div class="fg">
+          <label for="username">Username</label>
+          <input type="text" id="username" placeholder="e.g. jane_doe" required />
+        </div>
+
+        <div class="fg">
+          <label for="email">Email Address</label>
+          <input type="email" id="email" placeholder="e.g. jane@city.gov" required />
+        </div>
+
+        <div class="fg">
+          <label for="password">Password</label>
+          <input type="password" id="password" placeholder="Minimum 8 characters" required />
+        </div>
+
+        <!-- Role dropdown — sent to backend as part of the registration body -->
+        <div class="fg">
+          <label for="role">Access Role</label>
+          <select id="role">
+            <option value="viewer" selected>👁️ Viewer – Read-only access</option>
+            <option value="engineer">🔧 Engineer – Task management</option>
+            <option value="admin"> 🔴 Admin – Full access</option>
+          </select>
+        </div>
+
+        <button type="submit" class="btn btn-primary" id="regBtn">
+          <div class="spinner" id="regSpinner"></div>
+          <span id="regBtnText">Create Account</span>
+        </button>
+
+      </form>
+    </div>
+
+    <div class="foot">
+      Already have an account? <a href="login.html">Sign in here</a>
+    </div>
+
+  </div><!-- /auth-wrap -->
+
+  <!-- ══ JAVASCRIPT
+       How this connects to the backend:
+         1. User fills in form and clicks submit.
+         2. We call POST http://127.0.0.1:8000/auth/register with JSON.
+         3. Backend validates email (must be valid format), hashes password,
+            stores user, and returns { username, email, role }.
+         4. On success → redirect to login.html.
+         5. On error → show an alert with the backend's error message.
+  -->
+  <script>
+    // ── Backend API base URL ─────────────────────────────
+    // Frontend runs on :3000, backend on :8000.
+    // All fetch() calls must use this full URL.
+    const API = 'http://127.0.0.1:8000';
+
+    const form = document.getElementById('registerForm');
+    const btn = document.getElementById('regBtn');
+    const spinner = document.getElementById('regSpinner');
+    const btnText = document.getElementById('regBtnText');
+
+    // ── Toggle button loading state ──────────────────────
+    function setLoading(on) {
+      btn.disabled = on;
+      spinner.style.display = on ? 'block' : 'none';
+      btnText.textContent = on ? 'Creating…' : 'Create Account';
+    }
+
+    // ── Parse FastAPI error detail ────────────────────────
+    // detail can be a plain string OR an array of Pydantic errors
+    function parseDetail(detail) {
+      if (Array.isArray(detail)) {
+        return detail.map(e => e.msg).join('\n');
+      }
+      return String(detail);
+    }
+
+    // ── Submit handler ────────────────────────────────────
+    form.addEventListener('submit', async function (e) {
+      e.preventDefault();   // prevent page reload
+
+      const username = document.getElementById('username').value.trim();
+      const email = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value;
+      const role = document.getElementById('role').value;
+
+      // Basic client-side validation
+      if (!username || !email || !password) {
+        alert('Please fill in all fields.');
+        return;
+      }
+      if (password.length < 8) {
+        alert('Password must be at least 8 characters.');
+        return;
+      }
+
+      setLoading(true);
+      try {
+        // POST /auth/register
+        // Backend expects: { username, email, password, role }
+        const res = await fetch(API + '/auth/register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username, email, password, role })
+        });
+
+        if (res.ok) {
+          alert('✅ Account created! Redirecting to login…');
+          window.location.href = 'login.html';
+        } else {
+          const data = await res.json();
+          alert('Registration failed:\n' + parseDetail(data.detail || 'Unknown error'));
+        }
+      } catch (err) {
+        alert('❌ Cannot reach server.\nIs the backend running at http://127.0.0.1:8000?');
+        console.error('Register error:', err);
+      } finally {
+        setLoading(false);
+      }
+    });
+  </script>
+
+</body>
+
+</html>

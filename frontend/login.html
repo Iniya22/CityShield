@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Login – CityShield</title>
+    <link rel="stylesheet" href="styles.css" />
+</head>
+
+<body>
+    <div class="auth-wrap">
+
+        <!-- Brand -->
+        <div class="brand">
+            <div class="brand-icon">🛡️</div>
+            <h1>CityShield</h1>
+            <p>Secure City Infrastructure Platform</p>
+        </div>
+
+        <div class="card">
+            <h2>Welcome Back</h2>
+            <p class="sub">Sign in to access your role-based dashboard.</p>
+
+            <!-- ── Demo credentials quick-ref ── -->
+            <div class="demo-box">
+                <span class="demo-title">🚀 Quick Demo Login</span>
+                <div class="demo-row">
+                    <span>admin / <span class="demo-cred">Admin@123</span></span>
+                    <span class="demo-role dr-admin">Admin</span>
+                </div>
+                <div class="demo-row">
+                    <span>engineer1 / <span class="demo-cred">Engineer@123</span></span>
+                    <span class="demo-role dr-eng">Engineer</span>
+                </div>
+                <div class="demo-row">
+                    <span>viewer1 / <span class="demo-cred">Viewer@123</span></span>
+                    <span class="demo-role dr-viewer">Viewer</span>
+                </div>
+            </div>
+
+            <!-- ══ LOGIN FORM ══
+           ID attributes required by JavaScript below.
+           Backend endpoint: POST /auth/login
+           Payload: { username, password }
+           Response: { access_token, token_type }
+      -->
+            <form id="loginForm" novalidate>
+
+                <div class="fg">
+                    <label for="username">Username</label>
+                    <input type="text" id="username" placeholder="Your username" required />
+                </div>
+
+                <div class="fg">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" placeholder="Your password" required />
+                </div>
+
+                <button type="submit" class="btn btn-primary" id="loginBtn">
+                    <div class="spinner" id="loginSpinner"></div>
+                    <span id="loginBtnText">Sign In</span>
+                </button>
+
+            </form>
+
+            <div class="divider">or</div>
+            <a href="register.html" class="btn btn-ghost">Create New Account</a>
+        </div>
+
+        <div class="foot">
+            Don't have an account? <a href="register.html">Register here</a>
+        </div>
+
+    </div><!-- /auth-wrap -->
+
+    <!-- ══ JAVASCRIPT
+       How this connects to the backend:
+         1. User submits form.
+         2. We call POST /auth/login with { username, password }.
+         3. Backend checks credentials and returns a JWT access token.
+         4. We store the token in localStorage as key "token".
+         5. On dashboard.html, the token is read and sent with every
+            protected API call as:  Authorization: Bearer <token>
+  -->
+    <script>
+        const API = 'http://127.0.0.1:8000';
+
+        const form = document.getElementById('loginForm');
+        const btn = document.getElementById('loginBtn');
+        const spinner = document.getElementById('loginSpinner');
+        const btnText = document.getElementById('loginBtnText');
+
+        // If already logged in, skip straight to dashboard
+        if (localStorage.getItem('token')) {
+            window.location.href = 'dashboard.html';
+        }
+
+        function setLoading(on) {
+            btn.disabled = on;
+            spinner.style.display = on ? 'block' : 'none';
+            btnText.textContent = on ? 'Signing in…' : 'Sign In';
+        }
+
+        form.addEventListener('submit', async function (e) {
+            e.preventDefault();
+
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value;
+
+            if (!username || !password) {
+                alert('Please enter your username and password.');
+                return;
+            }
+
+            setLoading(true);
+            try {
+                // POST /auth/login
+                // Response shape: { access_token: "eyJ...", token_type: "bearer" }
+                const res = await fetch(API + '/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password })
+                });
+
+                const data = await res.json();
+
+                if (res.ok) {
+                    // ── Store JWT in localStorage ────────────────────
+                    // Key is "token". dashboard.html reads this same key.
+                    localStorage.setItem('token', data.access_token);
+                    window.location.href = 'dashboard.html';
+                } else {
+                    alert('Login failed:\n' + (data.detail || 'Incorrect username or password'));
+                }
+            } catch (err) {
+                alert('❌ Cannot reach server.\nIs the backend running at http://127.0.0.1:8000?');
+                console.error('Login error:', err);
+            } finally {
+                setLoading(false);
+            }
+        });
+    </script>
+
+</body>
+
+</html>
